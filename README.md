@@ -1,4 +1,4 @@
-# hydrator
+# Hydrator [![Build Status](https://travis-ci.org/anonymous-php/hydrator.svg?branch=master)](https://travis-ci.org/anonymous-php/hydrator) [![Latest Stable Version](https://poser.pugx.org/anonymous-php/hydrator/v/stable)](https://packagist.org/packages/anonymous-php/hydrator) [![Total Downloads](https://poser.pugx.org/anonymous-php/hydrator/downloads)](https://packagist.org/packages/anonymous-php/hydrator?format=flat) [![License](https://poser.pugx.org/anonymous-php/hydrator/license)](https://packagist.org/packages/anonymous-php/hydrator)
 
 This library gives you the possibility to hydrate your anemic models even if they contains private properties.
 
