@@ -26,9 +26,13 @@ $data = [
     'seats' => 2,
 ];
 
-(new Hydrator())->hydrate($model, $data);
+Hydrator::hydrate($model, $data);
 
 var_dump($model);
+
+$properties = Hydrator::toArray($model);
+
+var_dump($properties);
 ```
 
 Result
@@ -38,6 +42,12 @@ object(Vehicle)#3 (2) {
   ["doors":"Vehicle":private]=>
   int(3)
   ["seats":"Vehicle":private]=>
+  int(2)
+}
+array(2) {
+  ["doors"]=>
+  int(3)
+  ["seats"]=>
   int(2)
 }
 ```

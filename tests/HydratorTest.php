@@ -15,7 +15,7 @@ final class HydratorTest extends TestCase
         $this->assertFalse(property_exists($object, 'undefinedProperty'));
 
         $data = ['property' => 'value', 'undefinedProperty' => 'value2'];
-        (new Hydrator())->hydrate($object, $data);
+        Hydrator::hydrate($object, $data);
 
         $this->assertEquals($object->property, 'value');
         $this->assertFalse(property_exists($object, 'undefinedProperty'));
@@ -29,7 +29,7 @@ final class HydratorTest extends TestCase
         $this->assertFalse(property_exists($object, 'undefinedProperty'));
 
         $data = ['property' => 'value', 'undefinedProperty' => 'value2'];
-        (new Hydrator())->hydrate($object, $data, true);
+        Hydrator::hydrate($object, $data, true);
 
         $this->assertEquals($object->property, 'value');
         $this->assertTrue(property_exists($object, 'undefinedProperty'));
@@ -46,7 +46,7 @@ final class HydratorTest extends TestCase
 
         $data = ['publicProperty' => 'public', 'privateProperty' => 'private', 'protectedProperty' => 'protected'];
 
-        (new Hydrator())->hydrate($object, $data);
+        Hydrator::hydrate($object, $data);
 
         $this->assertEquals($object->publicProperty, 'public');
         $this->assertEquals($object->getPrivateProperty(), 'private');
@@ -59,12 +59,37 @@ final class HydratorTest extends TestCase
 
         $this->assertNull($object->getCreatedAt());
 
-        (new Hydrator())->hydrate($object, ['created_at' => '2020-01-01']);
+        Hydrator::hydrate($object, ['created_at' => '2020-01-01']);
         $this->assertInstanceOf(DateTimeImmutable::class, $object->getCreatedAt());
         $this->assertEquals($object->getCreatedAt()->format('Y-m-d'), '2020-01-01');
 
-        (new Hydrator())->hydrate($object, ['createdAt' => '2020-01-01']);
+        Hydrator::hydrate($object, ['createdAt' => '2020-01-01']);
         $this->assertEquals($object->getCreatedAt()->format('Y-m-d'), '2020-01-01');
+    }
+
+    public function testCanDehydrateProperties()
+    {
+        $object = new TestModel();
+        $data = ['publicProperty' => 'public', 'privateProperty' => 'private', 'protectedProperty' => 'protected'];
+
+        Hydrator::hydrate($object, $data);
+
+        $properties = Hydrator::toArray($object);
+        $this->assertArraySubset($data, $properties);
+
+        $properties = Hydrator::toArray($object, ['publicProperty']);
+        $this->assertEquals(['publicProperty' => 'public'], $properties);
+    }
+
+    public function testCanDehydratePropertiesUsingGetters()
+    {
+        $object = new TestModel();
+        $data = ['upperOnGet' => 'upper'];
+
+        Hydrator::hydrate($object, $data);
+
+        $properties = Hydrator::toArray($object, ['upperOnGet']);
+        $this->assertEquals(['upperOnGet' => 'UPPER'], $properties);
     }
 
 }
@@ -76,7 +101,7 @@ class TestModel
     private $privateProperty;
     protected $protectedProperty;
     private $created_at;
-
+    private $upperOnGet;
 
     public function getPrivateProperty()
     {
@@ -91,6 +116,11 @@ class TestModel
     public function getCreatedAt()
     {
         return $this->created_at;
+    }
+
+    public function getUpperOnGet()
+    {
+        return strtoupper($this->upperOnGet);
     }
 
     public function setCreatedAt($date)
