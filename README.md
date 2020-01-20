@@ -13,10 +13,8 @@ use Anonymous\Hydrator\Hydrator;
 
 class Vehicle
 {
-
     private $doors;
     private $seats;
-
 }
 
 $model = new Vehicle();
@@ -51,3 +49,30 @@ array(2) {
   int(2)
 }
 ```
+
+### Extending
+
+```php
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+use Anonymous\Hydrator\Hydrator;
+
+class CustomHydrator extends Hydrator
+{
+
+    protected static function getGetterName(string $property): string
+    {
+        return 'get' . static::convertSnakeToCamelCase($property) . 'Attribute';
+    }
+
+    protected static function getSetterName(string $property): string
+    {
+        return 'set' . static::convertSnakeToCamelCase($property) . 'Attribute';
+    }
+
+}
+```
+
+
