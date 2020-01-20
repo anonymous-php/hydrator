@@ -20,7 +20,7 @@ class Hydrator
      */
     public static function hydrate($model, $data, bool $setUndefined = false)
     {
-        $closure = function ($data, \Closure $getSetterName, bool $setUndefined) {
+        return static::applyClosure($model, function ($data, \Closure $getSetterName, bool $setUndefined) {
             foreach ($data as $property => $value) {
                 $setterName = $getSetterName($property);
 
@@ -30,18 +30,11 @@ class Hydrator
                     $this->{$property} = $value;
                 }
             }
-        };
 
-        $getSetterName = static function ($property) {
+            return $this;
+        }, $data, static function ($property) {
             return static::getSetterName($property);
-        };
-
-        $context = !$model instanceof \stdClass ? $model : null;
-        $hydrator = $closure->bindTo($model, $context);
-
-        $hydrator($data, $getSetterName, $setUndefined);
-
-        return $model;
+        }, $setUndefined);
     }
 
     /**
@@ -53,7 +46,7 @@ class Hydrator
      */
     public static function toArray($model, array $properties = []): array
     {
-        $closure = function ($properties, \Closure $getGetterName) {
+        return static::applyClosure($model, function ($properties, \Closure $getGetterName) {
             $result = [];
 
             if (count($properties) === 0) {
@@ -73,25 +66,34 @@ class Hydrator
             }
 
             return $result;
-        };
-
-        $getGetterName = static function ($property) {
+        }, $properties, static function ($property) {
             return static::getGetterName($property);
-        };
-
-        $context = !$model instanceof \stdClass ? $model : null;
-        $dehydrator = $closure->bindTo($model, $context);
-
-        return $dehydrator($properties, $getGetterName);
+        });
     }
 
     /**
-     * Convert property name case
+     * Bind and apply closure to the model
+     *
+     * @param $model
+     * @param \Closure $closure
+     * @param mixed ...$params
+     * @return mixed
+     */
+    protected static function applyClosure($model, \Closure $closure, ...$params)
+    {
+        $context = !$model instanceof \stdClass ? $model : null;
+        $bindedClosure = $closure->bindTo($model, $context);
+
+        return $bindedClosure(...$params);
+    }
+
+    /**
+     * Prepare property name. Convert property name from snake to camel case
      *
      * @param string $snakeCaseName
      * @return string
      */
-    protected static function convertSnakeToCamelCase(string $snakeCaseName): string
+    protected static function prepareName(string $snakeCaseName): string
     {
         $snakeConvert = static function ($matches) {
             return mb_convert_case($matches[1], MB_CASE_UPPER);
@@ -111,7 +113,7 @@ class Hydrator
      */
     protected static function getSetterName(string $property): string
     {
-        return 'set' . static::convertSnakeToCamelCase($property);
+        return 'set' . static::prepareName($property);
     }
 
     /**
@@ -123,7 +125,7 @@ class Hydrator
      */
     protected static function getGetterName(string $property): string
     {
-        return 'get' . static::convertSnakeToCamelCase($property);
+        return 'get' . static::prepareName($property);
     }
 
 }

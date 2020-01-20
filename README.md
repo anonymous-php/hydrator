@@ -64,12 +64,12 @@ class CustomHydrator extends Hydrator
 
     protected static function getGetterName(string $property): string
     {
-        return 'get' . static::convertSnakeToCamelCase($property) . 'Attribute';
+        return 'get' . parent::prepareName($property) . 'Attribute';
     }
 
     protected static function getSetterName(string $property): string
     {
-        return 'set' . static::convertSnakeToCamelCase($property) . 'Attribute';
+        return 'set' . parent::prepareName($property) . 'Attribute';
     }
 
 }
