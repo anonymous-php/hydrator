@@ -92,6 +92,13 @@ final class HydratorTest extends TestCase
         $this->assertEquals(['upperOnGet' => 'UPPER'], $properties);
     }
 
+    public function testCanDehydrateUndefinedProperties()
+    {
+        $object = new TestModel();
+        $properties = Hydrator::toArray($object, ['undefinedProperty']);
+        $this->assertEquals(['undefinedProperty' => null], $properties);
+    }
+
 }
 
 class TestModel

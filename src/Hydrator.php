@@ -66,7 +66,9 @@ class Hydrator
                 if ('' !== $getterName && method_exists($this, $getterName)) {
                     $result[$property] = $this->{$getterName}();
                 } else {
-                    $result[$property] = $this->{$property};
+                    $result[$property] = property_exists($this, $property)
+                        ? $this->{$property}
+                        : null;
                 }
             }
 
