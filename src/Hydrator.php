@@ -90,7 +90,7 @@ class Hydrator
      *
      * @return Closure
      */
-    protected function getextractClosure(): Closure
+    protected function getExtractClosure(): Closure
     {
         return function (array $properties) {
             $result = [];
