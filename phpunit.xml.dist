@@ -1,7 +1,10 @@
 <phpunit bootstrap="vendor/autoload.php">
     <testsuites>
-        <testsuite name="mysqlipdo">
+        <testsuite name="hydrator">
             <file>tests/HydratorTest.php</file>
+        </testsuite>
+        <testsuite name="dynamicHydrator">
+            <file>tests/DynamicHydratorTest.php</file>
         </testsuite>
     </testsuites>
     <filter>

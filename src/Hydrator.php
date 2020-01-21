@@ -3,12 +3,30 @@
 namespace Anonymous\Hydrator;
 
 
+use Closure;
+
 /**
  * Class Hydrator
  * @package Anonymous\Hydrator
  */
 class Hydrator
 {
+
+    /**
+     * @var Closure
+     */
+    protected $hydrateClosure;
+
+    /**
+     * @var Closure
+     */
+    protected $extractClosure;
+
+    /**
+     * @var array
+     */
+    protected $properties = [];
+
 
     /**
      * Hydrate model with the provided data
@@ -18,23 +36,16 @@ class Hydrator
      * @param bool $setUndefined        Set undefined properties
      * @return object                   $model
      */
-    public static function hydrate($model, $data, bool $setUndefined = false)
+    public function hydrate($model, $data, bool $setUndefined = true)
     {
-        return static::applyClosure($model, function ($data, \Closure $getSetterName, bool $setUndefined) {
-            foreach ($data as $property => $value) {
-                $setterName = $getSetterName($property);
+        if (null === $this->hydrateClosure) {
+            $this->hydrateClosure = $this->getHydrateClosure();
+        }
 
-                if ('' !== $setterName && method_exists($this, $setterName)) {
-                    $this->{$setterName}($value);
-                } elseif (property_exists($this, $property) || true === $setUndefined) {
-                    $this->{$property} = $value;
-                }
-            }
+        $context = !$model instanceof \stdClass ? $model : null;
+        $bindedClosure = $this->hydrateClosure->bindTo($model, $context);
 
-            return $this;
-        }, $data, static function ($property) {
-            return static::getSetterName($property);
-        }, $setUndefined);
+        return $bindedClosure($data, $setUndefined);
     }
 
     /**
@@ -44,88 +55,60 @@ class Hydrator
      * @param array $properties
      * @return array
      */
-    public static function toArray($model, array $properties = []): array
+    public function extract($model, array $properties = []): array
     {
-        return static::applyClosure($model, function ($properties, \Closure $getGetterName) {
+        if (null === $this->extractClosure) {
+            $this->extractClosure = $this->getextractClosure();
+        }
+
+        $context = !$model instanceof \stdClass ? $model : null;
+        $bindedClosure = $this->extractClosure->bindTo($model, $context);
+
+        return $bindedClosure($properties);
+    }
+
+    /**
+     * Hydrate under the hood
+     *
+     * @return Closure
+     */
+    protected function getHydrateClosure(): Closure
+    {
+        return function ($data, bool $setUndefined = true) {
+            foreach ($data as $property => $value) {
+                if (true === $setUndefined || property_exists($this, $property)) {
+                    $this->{$property} = $value;
+                }
+            }
+
+            return $this;
+        };
+    }
+
+    /**
+     * To array under the hood
+     *
+     * @return Closure
+     */
+    protected function getextractClosure(): Closure
+    {
+        return function (array $properties) {
             $result = [];
 
-            if (count($properties) === 0) {
+            $isPropertiesCustom = count($properties) > 0;
+
+            if (false === $isPropertiesCustom) {
                 $properties = array_keys(get_object_vars($this));
             }
 
             foreach ($properties as $property) {
-                $getterName = $getGetterName($property);
-
-                if ('' !== $getterName && method_exists($this, $getterName)) {
-                    $result[$property] = $this->{$getterName}();
-                } else {
-                    $result[$property] = property_exists($this, $property)
-                        ? $this->{$property}
-                        : null;
-                }
+                $result[$property] = false === $isPropertiesCustom || property_exists($this, $property)
+                    ? $this->{$property}
+                    : null;
             }
 
             return $result;
-        }, $properties, static function ($property) {
-            return static::getGetterName($property);
-        });
-    }
-
-    /**
-     * Bind and apply closure to the model
-     *
-     * @param $model
-     * @param \Closure $closure
-     * @param mixed ...$params
-     * @return mixed
-     */
-    protected static function applyClosure($model, \Closure $closure, ...$params)
-    {
-        $context = !$model instanceof \stdClass ? $model : null;
-        $bindedClosure = $closure->bindTo($model, $context);
-
-        return $bindedClosure(...$params);
-    }
-
-    /**
-     * Prepare property name. Convert property name from snake to camel case
-     *
-     * @param string $snakeCaseName
-     * @return string
-     */
-    protected static function prepareName(string $snakeCaseName): string
-    {
-        $snakeConvert = static function ($matches) {
-            return mb_convert_case($matches[1], MB_CASE_UPPER);
         };
-
-        $camelName = preg_replace_callback('/_([a-z0-9])/i', $snakeConvert, $snakeCaseName);
-
-        return mb_convert_case(mb_substr($camelName, 0, 1), MB_CASE_UPPER) . mb_substr($camelName, 1);
-    }
-
-    /**
-     * Get setter method name
-     * Return empty string to disable setters usage
-     *
-     * @param string $property
-     * @return string
-     */
-    protected static function getSetterName(string $property): string
-    {
-        return 'set' . static::prepareName($property);
-    }
-
-    /**
-     * Get getter method name
-     * Return empty string to disable getters usage
-     *
-     * @param string $property
-     * @return string
-     */
-    protected static function getGetterName(string $property): string
-    {
-        return 'get' . static::prepareName($property);
     }
 
 }
