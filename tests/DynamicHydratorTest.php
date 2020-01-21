@@ -16,7 +16,7 @@ final class DynamicHydratorTest extends TestCase
         $this->assertFalse(property_exists($object, 'undefinedProperty'));
 
         $data = ['property' => 'value', 'undefinedProperty' => 'value2'];
-        $hydrator->hydrate($object, $data, false);
+        $hydrator->hydrate($data, $object, false);
 
         $this->assertEquals($object->property, 'value');
         $this->assertFalse(property_exists($object, 'undefinedProperty'));
@@ -31,7 +31,7 @@ final class DynamicHydratorTest extends TestCase
         $this->assertFalse(property_exists($object, 'undefinedProperty'));
 
         $data = ['property' => 'value', 'undefinedProperty' => 'value2'];
-        $hydrator->hydrate($object, $data, true);
+        $hydrator->hydrate($data, $object, true);
 
         $this->assertEquals($object->property, 'value');
         $this->assertTrue(property_exists($object, 'undefinedProperty'));
@@ -49,7 +49,7 @@ final class DynamicHydratorTest extends TestCase
 
         $data = ['publicProperty' => 'public', 'privateProperty' => 'private', 'protectedProperty' => 'protected'];
 
-        $hydrator->hydrate($object, $data);
+        $hydrator->hydrate($data, $object);
 
         $this->assertEquals($object->publicProperty, 'public');
         $this->assertEquals($object->getPrivateProperty(), 'private');
@@ -63,11 +63,11 @@ final class DynamicHydratorTest extends TestCase
 
         $this->assertNull($object->getCreatedAt());
 
-        $hydrator->hydrate($object, ['created_at' => '2020-01-01']);
+        $hydrator->hydrate(['created_at' => '2020-01-01'], $object);
         $this->assertInstanceOf(DateTimeImmutable::class, $object->getCreatedAt());
         $this->assertEquals($object->getCreatedAt()->format('Y-m-d'), '2020-01-01');
 
-        $hydrator->hydrate($object, ['createdAt' => '2020-01-01']);
+        $hydrator->hydrate(['createdAt' => '2020-01-01'], $object);
         $this->assertEquals($object->getCreatedAt()->format('Y-m-d'), '2020-01-01');
     }
 
@@ -77,7 +77,7 @@ final class DynamicHydratorTest extends TestCase
         $object = new DynamicTestModel();
         $data = ['publicProperty' => 'public', 'privateProperty' => 'private', 'protectedProperty' => 'protected'];
 
-        $hydrator->hydrate($object, $data);
+        $hydrator->hydrate($data, $object);
 
         $properties = $hydrator->extract($object);
         $this->assertArraySubset($data, $properties);
@@ -92,7 +92,7 @@ final class DynamicHydratorTest extends TestCase
         $object = new DynamicTestModel();
         $data = ['upperOnGet' => 'upper'];
 
-        $hydrator->hydrate($object, $data);
+        $hydrator->hydrate($data, $object);
 
         $properties = $hydrator->extract($object, ['upperOnGet']);
         $this->assertEquals(['upperOnGet' => 'UPPER'], $properties);

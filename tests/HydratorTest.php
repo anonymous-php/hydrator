@@ -16,7 +16,7 @@ final class HydratorTest extends TestCase
         $this->assertFalse(property_exists($object, 'undefinedProperty'));
 
         $data = ['property' => 'value', 'undefinedProperty' => 'value2'];
-        $hydrator->hydrate($object, $data, false);
+        $hydrator->hydrate($data, $object, false);
 
         $this->assertEquals($object->property, 'value');
         $this->assertFalse(property_exists($object, 'undefinedProperty'));
@@ -31,7 +31,7 @@ final class HydratorTest extends TestCase
         $this->assertFalse(property_exists($object, 'undefinedProperty'));
 
         $data = ['property' => 'value', 'undefinedProperty' => 'value2'];
-        $hydrator->hydrate($object, $data, true);
+        $hydrator->hydrate($data, $object, true);
 
         $this->assertEquals($object->property, 'value');
         $this->assertTrue(property_exists($object, 'undefinedProperty'));
@@ -49,7 +49,7 @@ final class HydratorTest extends TestCase
 
         $data = ['publicProperty' => 'public', 'privateProperty' => 'private', 'protectedProperty' => 'protected'];
 
-        $hydrator->hydrate($object, $data);
+        $hydrator->hydrate($data, $object);
 
         $this->assertEquals($object->publicProperty, 'public');
         $this->assertEquals($object->getPrivateProperty(), 'private');
@@ -62,7 +62,7 @@ final class HydratorTest extends TestCase
         $object = new TestModel();
         $data = ['publicProperty' => 'public', 'privateProperty' => 'private', 'protectedProperty' => 'protected'];
 
-        $hydrator->hydrate($object, $data);
+        $hydrator->hydrate($data, $object);
 
         $properties = $hydrator->extract($object);
         $this->assertArraySubset($data, $properties);

@@ -31,12 +31,12 @@ class Hydrator
     /**
      * Hydrate model with the provided data
      *
-     * @param object $model             Model to hydrate
      * @param array|\Traversable $data  Data to fill model
+     * @param object $model             Model to hydrate
      * @param bool $setUndefined        Set undefined properties
      * @return object                   $model
      */
-    public function hydrate($model, $data, bool $setUndefined = true)
+    public function hydrate($data, $model, bool $setUndefined = true)
     {
         if (null === $this->hydrateClosure) {
             $this->hydrateClosure = $this->getHydrateClosure();

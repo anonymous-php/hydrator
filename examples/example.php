@@ -27,7 +27,7 @@ $hydrator = new Hydrator();
 
 $start = microtime(true);
 for ($i = 0; $i < $iterationsCount; $i++) {
-    $hydrator->hydrate($model, $data);
+    $hydrator->hydrate($data, $model);
 }
 $stop = microtime(true);
 
@@ -45,7 +45,7 @@ $hydrator = new DynamicHydrator();
 
 $start = microtime(true);
 for ($i = 0; $i < $iterationsCount; $i++) {
-    $hydrator->hydrate($model, $data);
+    $hydrator->hydrate($data, $model);
 }
 $stop = microtime(true);
 
