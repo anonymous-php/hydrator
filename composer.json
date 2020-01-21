@@ -1,7 +1,7 @@
 {
   "name": "anonymous-php/hydrator",
   "type": "library",
-  "description": "Hydrate your anemic models easily",
+  "description": "Hydrate your anemic models fast and easily",
   "keywords": [
     "hydrate",
     "models",

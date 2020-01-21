@@ -2,7 +2,13 @@
 
 This library gives you the possibility to hydrate your anemic models even if they contains private properties.
 
-### Example
+## Installation
+
+```
+composer require anonymous-php/hydrator
+```
+
+## Example
 
 ```php
 <?php
@@ -46,7 +52,7 @@ var_dump($properties);
 */
 ```
 
-### Extending
+## Extending
 
 ```php
 <?php
@@ -71,7 +77,7 @@ class CustomHydrator extends DynamicHydrator
 }
 ```
 
-### Banchmark
+## Benchmark
 
 ```php
 <?php
